@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoW → Delivery / Workflow Schematic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A1929;
+    --bg-2: #0E2138;
+    --grid: rgba(125, 211, 252, 0.06);
+    --grid-strong: rgba(125, 211, 252, 0.14);
+    --line: #7DD3FC;
+    --line-dim: rgba(125, 211, 252, 0.35);
+    --ink: #E7EEF6;
+    --ink-dim: #8FA3B8;
+    --ink-faint: #5A6D82;
+    --amber: #FBBF24;
+    --amber-dim: rgba(251, 191, 36, 0.18);
+    --teal: #5EEAD4;
+    --coral: #F4A18A;
+    --card: #0D1F34;
+    --card-border: rgba(125, 211, 252, 0.18);
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .frame{
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 28px 80px;
+  }
+
+  /* Header */
+  header{
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 28px 0 18px;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 8px;
+  }
+  .brand{ font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; color: var(--ink-dim); }
+  .brand strong{ color: var(--line); }
+  .rev{ font-family: var(--mono); font-size: 11px; color: var(--ink-faint); }
+
+  /* Hero */
+  .hero{ padding: 56px 0 24px; position: relative; }
+  .eyebrow{
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em;
+    color: var(--teal); text-transform: uppercase; margin: 0 0 14px;
+  }
+  h1{
+    font-family: var(--sans); font-weight: 600; font-size: clamp(30px, 5vw, 46px);
+    margin: 0 0 14px; letter-spacing: -0.01em; max-width: 720px;
+  }
+  .lede{ color: var(--ink-dim); font-size: 16px; max-width: 620px; margin: 0 0 40px; }
+
+  /* Diagram */
+  .diagram-frame{
+    position: relative;
+    border: 1px solid var(--card-border);
+    background: var(--bg-2);
+    padding: 8px;
+  }
+  .diagram-frame::before, .diagram-frame::after,
+  .corner-tl, .corner-br{
+    content: ''; position: absolute; width: 16px; height: 16px;
+    border-color: var(--line-dim); border-style: solid; pointer-events: none;
+  }
+  .corner-tl{ top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+  .corner-br{ bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+  .diagram-frame svg{ display:block; width: 100%; height: auto; }
+
+  .node{ cursor: pointer; }
+  .node .box{ transition: fill 0.15s ease, stroke 0.15s ease; }
+  .node:hover .box{ stroke: var(--line); }
+  .node:hover .box-fill{ fill: rgba(125, 211, 252, 0.06); }
+
+  .hint{
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    margin: 12px 2px 0; letter-spacing: 0.02em;
+  }
+
+  /* Stage sections */
+  main{ margin-top: 64px; }
+  .section-label{
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em;
+    color: var(--ink-faint); text-transform: uppercase; margin: 0 0 18px;
+    padding-top: 32px; border-top: 1px dashed var(--card-border);
+  }
+  .section-label:first-child{ border-top: none; padding-top: 0; }
+
+  details.stage{
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    margin-bottom: 12px;
+    scroll-margin-top: 24px;
+  }
+  details.stage[open]{ border-color: var(--line-dim); }
+  details.stage summary{
+    list-style: none;
+    cursor: pointer;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: space-between;
+  }
+  details.stage summary::-webkit-details-marker{ display:none; }
+  .summary-left{ display:flex; align-items:center; gap:16px; min-width:0; }
+  .stage-index{
+    font-family: var(--mono); font-size: 12px; color: var(--line);
+    border: 1px solid var(--line-dim); border-radius: 50%;
+    width: 30px; height: 30px; display:flex; align-items:center; justify-content:center;
+    flex-shrink: 0;
+  }
+  .summary-text{ min-width: 0; }
+  .stage-title{ font-weight: 600; font-size: 16px; color: var(--ink); }
+  .stage-oneline{ font-size: 13px; color: var(--ink-dim); margin-top: 2px; }
+  .gate-tag{
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+    color: var(--amber); background: var(--amber-dim);
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    padding: 3px 8px; white-space: nowrap; flex-shrink: 0;
+  }
+  .chev{
+    font-family: var(--mono); color: var(--ink-faint); font-size: 14px;
+    transition: transform 0.15s ease; flex-shrink: 0;
+  }
+  details.stage[open] .chev{ transform: rotate(90deg); color: var(--line); }
+
+  .stage-body{
+    padding: 0 22px 24px 68px;
+    border-top: 1px solid var(--card-border);
+    margin-top: 0;
+  }
+  .stage-body-inner{ padding-top: 18px; }
+  .kv{ display:grid; grid-template-columns: 110px 1fr; gap: 8px 16px; margin-bottom: 16px; font-size: 14px; }
+  .kv dt{ font-family: var(--mono); font-size: 11px; color: var(--ink-faint); letter-spacing: 0.06em; padding-top: 2px; }
+  .kv dd{ margin:0; color: var(--ink); }
+  .steps{ margin: 0 0 16px; padding-left: 20px; color: var(--ink-dim); font-size: 14px; }
+  .steps li{ margin-bottom: 6px; }
+  .steps li::marker{ color: var(--line-dim); font-family: var(--mono); font-size: 12px; }
+  .callout{
+    font-size: 13px; color: var(--ink-dim); background: rgba(125,211,252,0.04);
+    border-left: 2px solid var(--line-dim); padding: 10px 14px; margin-top: 10px;
+  }
+  .callout.warn{ border-left-color: var(--amber); background: var(--amber-dim); color: #F3D98A; }
+
+  /* Gates table */
+  table{ width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td{ text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--card-border); }
+  th{ font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-faint); text-transform: uppercase; font-weight: 400; }
+  td{ color: var(--ink-dim); }
+  td.stage-cell{ color: var(--ink); font-weight: 500; }
+  .badge{ font-family: var(--mono); font-size: 10px; padding: 3px 8px; letter-spacing: 0.04em; }
+  .badge.gate{ color: var(--amber); background: var(--amber-dim); border: 1px solid rgba(251,191,36,0.4); }
+  .badge.free{ color: var(--teal); background: rgba(94,234,212,0.08); border: 1px solid rgba(94,234,212,0.3); }
+
+  /* Open items */
+  .checklist{ list-style:none; margin:0; padding:0; display:grid; gap: 10px; }
+  .checklist li{
+    display:flex; gap: 12px; align-items:flex-start; font-size: 14px; color: var(--ink-dim);
+    padding: 12px 14px; background: var(--card); border: 1px solid var(--card-border);
+  }
+  .checklist .box-icon{
+    width: 14px; height: 14px; border: 1px solid var(--line-dim); flex-shrink: 0; margin-top: 3px;
+  }
+  .checklist strong{ color: var(--ink); font-weight: 500; }
+
+  footer{
+    margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--card-border);
+    font-family: var(--mono); font-size: 11px; color: var(--ink-faint);
+    display:flex; justify-content: space-between;
+  }
+
+  @media (max-width: 720px){
+    .stage-body{ padding-left: 22px; }
+    .kv{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <header>
+    <div class="brand">SOW&nbsp;&rarr;&nbsp;DELIVERY <strong>/ WORKFLOW SCHEMATIC</strong></div>
+  </header>
+
+  <section class="hero">
+    <p class="eyebrow">Orchestrated by Claude</p>
+    <h1>From approved SoW to weekly stakeholder reporting</h1>
+    <p class="lede">One trigger, five downstream stages, three hard confirmation gates. Claude drafts and calculates throughout — Jira writes and outbound email always wait for a human "go."</p>
+
+    <div class="diagram-frame">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <svg viewBox="0 0 1000 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Architecture diagram of the SoW to delivery workflow">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#7DD3FC" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- dimension ticks along top -->
+        <line x1="40" y1="30" x2="960" y2="30" stroke="#7DD3FC" stroke-opacity="0.25" stroke-width="1"/>
+        <line x1="40" y1="24" x2="40" y2="36" stroke="#7DD3FC" stroke-opacity="0.25" stroke-width="1"/>
+        <line x1="960" y1="24" x2="960" y2="36" stroke="#7DD3FC" stroke-opacity="0.25" stroke-width="1"/>
+        <text x="500" y="20" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#5A6D82">WORKFLOW SPAN</text>
+
+        <!-- hub -->
+        <g class="node" onclick="jumpTo('stage-claude')">
+          <rect class="box box-fill" x="380" y="60" width="240" height="350" fill="rgba(94,234,212,0.04)" stroke="#5EEAD4" stroke-width="1"/>
+          <text x="500" y="215" text-anchor="middle" font-family="IBM Plex Mono" font-size="20" fill="#5EEAD4" font-weight="600">CLAUDE</text>
+          <text x="500" y="238" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" fill="#8FA3B8">orchestrates every</text>
+          <text x="500" y="254" text-anchor="middle" font-family="IBM Plex Sans" font-size="12" fill="#8FA3B8">stage below</text>
+          <text x="500" y="380" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#5A6D82">GATES: JIRA WRITES · EMAIL SEND</text>
+        </g>
+
+        <!-- left column -->
+        <g class="node" onclick="jumpTo('stage-0')">
+          <rect class="box box-fill" x="40" y="68" width="200" height="64" fill="#0D1F34" stroke="#3A4C5E" stroke-width="1"/>
+          <circle cx="40" cy="68" r="13" fill="#0A1929" stroke="#7DD3FC" stroke-width="1"/>
+          <text x="40" y="68" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono" font-size="11" fill="#7DD3FC">00</text>
+          <text x="140" y="93" text-anchor="middle" font-family="IBM Plex Sans" font-size="14" font-weight="600" fill="#E7EEF6">SoW approved</text>
+          <text x="140" y="111" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#8FA3B8">TRIGGER</text>
+        </g>
+
+        <g class="node" onclick="jumpTo('stage-1')">
+          <rect class="box box-fill" x="40" y="158" width="200" height="64" fill="#0D1F34" stroke="#3A4C5E" stroke-width="1"/>
+          <circle cx="40" cy="158" r="13" fill="#0A1929" stroke="#7DD3FC" stroke-width="1"/>
+          <text x="40" y="158" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono" font-size="11" fill="#7DD3FC">01</text>
+          <text x="140" y="183" text-anchor="middle" font-family="IBM Plex Sans" font-size="14" font-weight="600" fill="#E7EEF6">Task breakdown</text>
+          <text x="140" y="201" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#8FA3B8">HOURS ESTIMATION</text>
+        </g>
+
+        <g class="node" onclick="jumpTo('stage-3')">
+          <rect class="box box-fill" x="40" y="248" width="200" height="64" fill="#0D1F34" stroke="#3A4C5E" stroke-width="1"/>
+          <circle cx="40" cy="248" r="13" fill="#0A1929" stroke="#7DD3FC" stroke-width="1"/>
+          <text x="40" y="248" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono" font-size="11" fill="#7DD3FC">03</text>
+          <text x="140" y="273" text-anchor="middle" font-family="IBM Plex Sans" font-size="14" font-weight="600" fill="#E7EEF6">Risk register</text>
+          <text x="140" y="291" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#8FA3B8">UPDATED PER SPRINT</text>
+        </g>
+
+        <!-- right column -->
+        <g class="node" onclick="jumpTo('stage-2')">
+          <rect class="box box-fill" x="760" y="68" width="200" height="64" fill="#0D1F34" stroke="#3A4C5E" stroke-width="1"/>
+          <circle cx="760" cy="68" r="13" fill="#0A1929" stroke="#7DD3FC" stroke-width="1"/>
+          <text x="760" y="68" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono" font-size="11" fill="#7DD3FC">02</text>
+          <text x="860" y="93" text-anchor="middle" font-family="IBM Plex Sans" font-size="14" font-weight="600" fill="#E7EEF6">Jira project setup</text>
+          <text x="860" y="111" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#8FA3B8">PROJECT · TICKETS · SPRINTS</text>
+          <rect x="912" y="56" width="46" height="16" fill="rgba(251,191,36,0.18)" stroke="#FBBF24" stroke-width="0.75"/>
+          <text x="935" y="67" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#FBBF24">GATE</text>
+        </g>
+
+        <g class="node" onclick="jumpTo('stage-4')">
+          <rect class="box box-fill" x="760" y="158" width="200" height="64" fill="#0D1F34" stroke="#3A4C5E" stroke-width="1"/>
+          <circle cx="760" cy="158" r="13" fill="#0A1929" stroke="#7DD3FC" stroke-width="1"/>
+          <text x="760" y="158" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono" font-size="11" fill="#7DD3FC">04</text>
+          <text x="860" y="183" text-anchor="middle" font-family="IBM Plex Sans" font-size="14" font-weight="600" fill="#E7EEF6">Tempo pacing</text>
+          <text x="860" y="201" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#8FA3B8">BUDGET VS. ACTUAL</text>
+        </g>
+
+        <g class="node" onclick="jumpTo('stage-5')">
+          <rect class="box box-fill" x="760" y="248" width="200" height="64" fill="#0D1F34" stroke="#3A4C5E" stroke-width="1"/>
+          <circle cx="760" cy="248" r="13" fill="#0A1929" stroke="#7DD3FC" stroke-width="1"/>
+          <text x="760" y="248" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono" font-size="11" fill="#7DD3FC">05</text>
+          <text x="860" y="273" text-anchor="middle" font-family="IBM Plex Sans" font-size="14" font-weight="600" fill="#E7EEF6">Weekly status deck</text>
+          <text x="860" y="291" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#8FA3B8">SPRINT · PACING · RISK</text>
+        </g>
+
+        <g class="node" onclick="jumpTo('stage-6')">
+          <rect class="box box-fill" x="760" y="338" width="200" height="64" fill="#0D1F34" stroke="#3A4C5E" stroke-width="1"/>
+          <circle cx="760" cy="338" r="13" fill="#0A1929" stroke="#7DD3FC" stroke-width="1"/>
+          <text x="760" y="338" text-anchor="middle" dominant-baseline="central" font-family="IBM Plex Mono" font-size="11" fill="#7DD3FC">06</text>
+          <text x="860" y="363" text-anchor="middle" font-family="IBM Plex Sans" font-size="14" font-weight="600" fill="#E7EEF6">Stakeholder email</text>
+          <text x="860" y="381" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#8FA3B8">CLIENT + INTERNAL</text>
+          <rect x="912" y="326" width="46" height="16" fill="rgba(251,191,36,0.18)" stroke="#FBBF24" stroke-width="0.75"/>
+          <text x="935" y="337" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#FBBF24">GATE</text>
+        </g>
+
+        <!-- connectors: left into hub -->
+        <line x1="240" y1="100" x2="378" y2="100" stroke="#7DD3FC" stroke-opacity="0.5" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="378" y1="190" x2="240" y2="190" stroke="#7DD3FC" stroke-opacity="0.5" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="378" y1="280" x2="240" y2="280" stroke="#7DD3FC" stroke-opacity="0.5" stroke-width="1" marker-end="url(#arrow)"/>
+
+        <!-- connectors: hub out to right -->
+        <line x1="622" y1="100" x2="758" y2="100" stroke="#7DD3FC" stroke-opacity="0.5" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="622" y1="190" x2="758" y2="190" stroke="#7DD3FC" stroke-opacity="0.5" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="622" y1="280" x2="758" y2="280" stroke="#7DD3FC" stroke-opacity="0.5" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="622" y1="370" x2="758" y2="370" stroke="#7DD3FC" stroke-opacity="0.5" stroke-width="1" marker-end="url(#arrow)"/>
+        <text x="500" y="440" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#5A6D82">AMBER = REQUIRES EXPLICIT CONFIRMATION BEFORE THE ACTION FIRES</text>
+      </svg>
+    </div>
+  </section>
+
+  <main>
+    <p class="section-label">00 — Prerequisites</p>
+    <details class="stage" id="stage-0">
+      <summary>
+        <div class="summary-left">
+          <div class="stage-index">00</div>
+          <div class="summary-text">
+            <div class="stage-title">Prerequisites</div>
+            <div class="stage-oneline">What needs to exist before this workflow can run end to end</div>
+          </div>
+        </div>
+        <span class="chev">&#9656;</span>
+      </summary>
+      <div class="stage-body"><div class="stage-body-inner">
+        <table>
+          <tr><th>Item</th><th>Needed for</th><th>Status</th></tr>
+          <tr><td class="stage-cell">Jira connector, project-create permission</td><td>Stage 2</td><td>Not yet connected</td></tr>
+          <tr><td class="stage-cell">Tempo Budgets/Timesheets access</td><td>Stage 4</td><td>Connector needed</td></tr>
+          <tr><td class="stage-cell">Team capacity (hrs/week)</td><td>Stage 2 sprint sizing</td><td>To be supplied</td></tr>
+          <tr><td class="stage-cell">Email connector, send permission</td><td>Stage 6</td><td>Not yet connected</td></tr>
+          <tr><td class="stage-cell">Reporting cadence (day/time)</td><td>Stage 5–6</td><td>To be confirmed</td></tr>
+        </table>
+      </div></div>
+    </details>
+
+    <p class="section-label">01–06 — Pipeline stages</p>
+
+    <details class="stage" id="stage-1">
+      <summary>
+        <div class="summary-left">
+          <div class="stage-index">01</div>
+          <div class="summary-text">
+            <div class="stage-title">Task breakdown &amp; hours estimation</div>
+            <div class="stage-oneline">SoW → epic/story hierarchy with AI-estimated hours</div>
+          </div>
+        </div>
+        <span class="chev">&#9656;</span>
+      </summary>
+      <div class="stage-body"><div class="stage-body-inner">
+        <dl class="kv">
+          <dt>Input</dt><dd>Approved SoW document</dd>
+          <dt>Owner</dt><dd>Claude drafts → PM reviews</dd>
+        </dl>
+        <ol class="steps">
+          <li>Parse the SoW's deliverables and scope statements</li>
+          <li>Generate an epic → story/task hierarchy, one epic per major deliverable</li>
+          <li>Estimate hours per task from comparable complexity and any historical velocity supplied</li>
+          <li>Flag vague scope items ("ongoing support") for PM clarification before sizing</li>
+        </ol>
+        <div class="callout">Output: draft ticket list — title, description, hours, epic grouping — shown for review. Nothing is written to Jira from this stage. Every estimate is labeled "AI-estimated, needs PM review."</div>
+      </div></div>
+    </details>
+
+    <details class="stage" id="stage-2">
+      <summary>
+        <div class="summary-left">
+          <div class="stage-index">02</div>
+          <div class="summary-text">
+            <div class="stage-title">Jira project &amp; sprint creation</div>
+            <div class="stage-oneline">Project, tickets, and sprint assignment — each write confirmed</div>
+          </div>
+        </div>
+        <span class="gate-tag">GATE</span>
+        <span class="chev">&#9656;</span>
+      </summary>
+      <div class="stage-body"><div class="stage-body-inner">
+        <dl class="kv">
+          <dt>Input</dt><dd>Approved ticket list + weekly team capacity</dd>
+          <dt>Owner</dt><dd>Claude proposes → PM confirms each write</dd>
+        </dl>
+        <ol class="steps">
+          <li>Propose Jira project structure (name, key, template)</li>
+          <li>Batch approved tickets for creation</li>
+          <li>Calculate sprint count as total estimated hours ÷ weekly capacity, propose boundaries and assignment</li>
+        </ol>
+        <div class="callout warn">Three separate confirmations: project creation, ticket batch, sprint assignment. No batch write happens without an explicit go-ahead each time.</div>
+      </div></div>
+    </details>
+
+    <details class="stage" id="stage-3">
+      <summary>
+        <div class="summary-left">
+          <div class="stage-index">03</div>
+          <div class="summary-text">
+            <div class="stage-title">Risk register</div>
+            <div class="stage-oneline">Living document, re-evaluated at the start of every sprint</div>
+          </div>
+        </div>
+        <span class="chev">&#9656;</span>
+      </summary>
+      <div class="stage-body"><div class="stage-body-inner">
+        <dl class="kv">
+          <dt>Input</dt><dd>SoW + Stage 1 ticket breakdown</dd>
+          <dt>Owner</dt><dd>Claude drafts, PM reviews before external sharing</dd>
+        </dl>
+        <ol class="steps">
+          <li>Draft register: category (scope / technical / resourcing / timeline / vendor) · likelihood · impact · mitigation owner</li>
+          <li>Re-evaluate each sprint start — add new risks from ticket status or scope change, close resolved ones</li>
+        </ol>
+        <div class="callout">Output: version-dated risk register, linked from the weekly status deck.</div>
+      </div></div>
+    </details>
+
+    <details class="stage" id="stage-4">
+      <summary>
+        <div class="summary-left">
+          <div class="stage-index">04</div>
+          <div class="summary-text">
+            <div class="stage-title">Financial pacing (Tempo)</div>
+            <div class="stage-oneline">Logged hours vs. SoW budget, classified into a pacing status</div>
+          </div>
+        </div>
+        <span class="chev">&#9656;</span>
+      </summary>
+      <div class="stage-body"><div class="stage-body-inner">
+        <dl class="kv">
+          <dt>Input</dt><dd>Tempo hours logged + SoW budget figure</dd>
+          <dt>Owner</dt><dd>Claude, read-only calculation</dd>
+        </dl>
+        <ol class="steps">
+          <li>Pull logged hours per sprint from Tempo</li>
+          <li>Compare cumulative burn against budgeted hours/dollars</li>
+          <li>Classify: on track (±5%) · at risk (5–15% over) · over budget (&gt;15% over)</li>
+          <li>Surface which epics/tasks are driving variance</li>
+        </ol>
+        <div class="callout warn">Requires the Jira + Tempo connector to be live — the calculation logic is ready, it just isn't wired to real data yet.</div>
+      </div></div>
+    </details>
+
+    <details class="stage" id="stage-5">
+      <summary>
+        <div class="summary-left">
+          <div class="stage-index">05</div>
+          <div class="summary-text">
+            <div class="stage-title">Weekly status deck</div>
+            <div class="stage-oneline">Sprint progress, pacing, and risk rolled into one recurring deck</div>
+          </div>
+        </div>
+        <span class="chev">&#9656;</span>
+      </summary>
+      <div class="stage-body"><div class="stage-body-inner">
+        <dl class="kv">
+          <dt>Input</dt><dd>Sprint data + risk register + pacing status</dd>
+          <dt>Cadence</dt><dd>TBD — Friday EOD or Monday AM</dd>
+        </dl>
+        <ol class="steps">
+          <li>Summary — one-line project health, milestone status</li>
+          <li>Sprint progress — completion %, tickets done/in-progress/blocked</li>
+          <li>Budget pacing — status + narrative</li>
+          <li>Risks &amp; blockers — top 3–5, new ones flagged</li>
+          <li>Next steps — upcoming focus, decisions needed</li>
+        </ol>
+        <div class="callout">PM review recommended before the deck goes out, at least for the first few cycles.</div>
+      </div></div>
+    </details>
+
+    <details class="stage" id="stage-6">
+      <summary>
+        <div class="summary-left">
+          <div class="stage-index">06</div>
+          <div class="summary-text">
+            <div class="stage-title">Stakeholder communication</div>
+            <div class="stage-oneline">Separate client and internal drafts — always sent by a human</div>
+          </div>
+        </div>
+        <span class="gate-tag">GATE</span>
+        <span class="chev">&#9656;</span>
+      </summary>
+      <div class="stage-body"><div class="stage-body-inner">
+        <dl class="kv">
+          <dt>Client email</dt><dd>Progress narrative, milestones, qualitative pacing — no internal blocker detail or names</dd>
+          <dt>Internal email</dt><dd>Everything above, plus granular blockers, risk detail, action owners, hard numbers</dd>
+        </dl>
+        <div class="callout warn">Draft only — a human always sends. This stays true even if the rest of the pipeline becomes more autonomous, since client messaging carries relationship risk Jira tickets don't.</div>
+      </div></div>
+    </details>
+
+    <p class="section-label">Gate summary</p>
+    <table>
+      <tr><th>Stage</th><th>Action</th><th>Gate</th></tr>
+      <tr><td class="stage-cell">01</td><td>Draft tickets/estimates</td><td><span class="badge free">DRAFT ONLY</span></td></tr>
+      <tr><td class="stage-cell">02</td><td>Create Jira project</td><td><span class="badge gate">CONFIRM</span></td></tr>
+      <tr><td class="stage-cell">02</td><td>Create tickets</td><td><span class="badge gate">CONFIRM</span></td></tr>
+      <tr><td class="stage-cell">02</td><td>Assign sprints</td><td><span class="badge gate">CONFIRM</span></td></tr>
+      <tr><td class="stage-cell">03</td><td>Draft/update risk register</td><td><span class="badge free">DRAFT ONLY</span></td></tr>
+      <tr><td class="stage-cell">04</td><td>Pull Tempo data, calculate pacing</td><td><span class="badge free">READ-ONLY</span></td></tr>
+      <tr><td class="stage-cell">05</td><td>Generate deck</td><td><span class="badge free">REVIEW RECOMMENDED</span></td></tr>
+      <tr><td class="stage-cell">06</td><td>Send client/internal email</td><td><span class="badge gate">CONFIRM — ALWAYS</span></td></tr>
+    </table>
+  </main>
+
+  <footer>
+    <span>SOW-TO-DELIVERY WORKFLOW</span>
+    <span>ORCHESTRATOR: CLAUDE</span>
+  </footer>
+
+</div>
+
+<script>
+  function jumpTo(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    if(el.tagName === 'DETAILS'){ el.open = true; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+</body>
+</html>
